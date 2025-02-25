@@ -32,7 +32,7 @@ In this project, we employ [SonarCloud](https://www.sonarsource.com/products/son
 
 ESLint, on the other hand, is a widely-used JavaScript linter that helps enforce coding standards and best practices. By configuring ESLint rules according to our project requirements, we ensure consistent code style and identify potential errors early in the development process.
 
-Combining SonarCloud and ESLint enables us to perform thorough static code analysis, resulting in cleaner, more maintainable code and enhancing overall software quality.
+Combining SonarCloud and ESLint enables us to perform thorough static code analysis, resulting in cleaner, more maintainable code and enhancing overall software quality..
 
 ### API Documentation
 
