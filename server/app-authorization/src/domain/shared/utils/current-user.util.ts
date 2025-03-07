@@ -18,11 +18,11 @@ export class CurrentUserUtil {
   public audit(set: SetAutitEnum = SetAutitEnum.NEW): Partial<AuditableEntity> {
     switch (set) {
       case SetAutitEnum.NEW:
-        return { created_by: this.user_id };
+        return { creado_por: this.user_id };
       case SetAutitEnum.UPDATE:
-        return { updated_by: this.user_id };
+        return { actualizado_por: this.user_id };
       case SetAutitEnum.BOTH:
-        return { created_by: this.user_id, updated_by: this.user_id };
+        return { creado_por: this.user_id, actualizado_por: this.user_id };
     }
   }
 }
