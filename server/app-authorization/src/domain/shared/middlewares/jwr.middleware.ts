@@ -11,8 +11,8 @@ import { ExceptionMessage } from '../enums/exception-message.enum';
 import { JwtService, TokenExpiredError, JsonWebTokenError } from '@nestjs/jwt';
 import { env } from 'process';
 import { DataSource } from 'typeorm';
-import { UserRole } from '../../entities/user-roles/entities/user-role.entity';
 import { PayloadDto } from '../global-dto/payload.dto';
+import { RolesPersona } from '../../entities/roles-personas/entities/roles-persona.entity';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
@@ -43,12 +43,10 @@ export class JwtMiddleware implements NestMiddleware {
         secret: env.ARIM_JWT_SECRET,
       });
       req.user = decoded;
-      const typeRole: number = 1;
-      const roles = await this.dataSource.getRepository(UserRole).find({
+      const roles = await this.dataSource.getRepository(RolesPersona).find({
         where: {
-          user_id: decoded.id,
+          persona_id: decoded.id,
           is_active: true,
-          role: { focus_id: typeRole },
         },
       });
       req.user.roles = roles;

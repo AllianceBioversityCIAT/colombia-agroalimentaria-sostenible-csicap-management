@@ -1,48 +1,13 @@
 import { Routes, RouteTree } from '@nestjs/core';
 import { RolesModule } from '../entities/roles/roles.module';
-import { UsersModule } from '../entities/users/users.module';
 import { AuthorizationModule } from '../entities/authorization.module';
-import { OrganizationalEntitiesModule } from '../entities/organizational-entities/organizational-entities.module';
-import { EntityTypesModule } from '../entities/entity-types/entity-types.module';
-import { EndpointPermissionsModule } from '../entities/endpoint-permissions/endpoint-permissions.module';
-import { RoleFocusModule } from '../entities/role-focus/role-focus.module';
-import { UserRolesModule } from '../entities/user-roles/user-roles.module';
-import { RoleFunctionalPermissionsModule } from '../entities/role-functional-permissions/role-functional-permissions.module';
-import { ElementypesModule } from '../entities/element-types/element-types.module';
-import { ViewConfigurationsModule } from '../entities/view-configurations/view-configurations.module';
-import { RoleEndpointPermissionsModule } from '../entities/role-endpoint-permissions/role-endpoint-permissions.module';
-import { UserRoleContractsModule } from '../entities/user-role-contracts/user-role-contracts.module';
-
-const organizational: Routes = [
-  { path: 'entities', module: OrganizationalEntitiesModule },
-];
-
-const role: Routes = [
-  { path: 'focus', module: RoleFocusModule },
-  { path: 'functional-permission', module: RoleFunctionalPermissionsModule },
-  { path: 'endpoint-permissions', module: RoleEndpointPermissionsModule },
-];
-
-const view: Routes = [
-  { path: 'configurations', module: ViewConfigurationsModule },
-  { path: 'element/type', module: ElementypesModule },
-];
-
-const userRolesChildren: Routes = [
-  {
-    path: 'contracts',
-    module: UserRoleContractsModule,
-  },
-];
+import { PersonasModule } from '../entities/personas/personas.module';
+import { RolesPersonasModule } from '../entities/roles-personas/roles-personas.module';
 
 const children: Routes = [
-  { path: 'user-roles', module: UserRolesModule, children: userRolesChildren },
-  { path: 'users', module: UsersModule },
-  { path: 'entity-types', module: EntityTypesModule },
-  { path: 'organizational', children: organizational },
-  { path: 'role', module: RolesModule, children: role },
-  { path: 'endpoint-permissions', module: EndpointPermissionsModule },
-  { path: 'view', children: view },
+  { path: 'user-roles', module: RolesPersonasModule },
+  { path: 'users', module: PersonasModule },
+  { path: 'role', module: RolesModule },
 ];
 
 export const routes: RouteTree = {

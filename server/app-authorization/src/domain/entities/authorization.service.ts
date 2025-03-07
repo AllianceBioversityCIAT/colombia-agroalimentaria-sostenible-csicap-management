@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CognitoProfileDto } from '../shared/global-dto/cognito-profile.dto';
-import { User } from './users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import {
   AccessTokenDto,
@@ -9,65 +8,30 @@ import {
   ResponseAccessTokenDto,
   ValidJwtResponse,
 } from '../shared/global-dto/payload.dto';
-import { RefreshToken } from './refresh-tokens/entities/refresh-token.entity';
-import { RefreshTokensService } from './refresh-tokens/refresh-tokens.service';
+import { TokensRenovacion } from './tokens-renovacion/entities/refresh-token.entity';
+import { TokensRenovacionService } from './tokens-renovacion/tokens-renovacion.service';
 import { ENV } from '../shared/utils/env.utils';
-import { RolesEnum } from '../shared/enums/roles.enum';
 import { env } from 'process';
-import { MessageMicroservice } from '../tools/broker/message.microservice';
-import { UsersService } from './users/users.service';
-import { UserStatusEnum } from './user-status/enum/user-status.enum';
 import { isEmpty } from '../shared/utils/object.utils';
+import { PersonasService } from './personas/personas.service';
+import { Persona } from './personas/entities/persona.entity';
 
 @Injectable()
 export class AuthorizationService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly _jwt: JwtService,
-    private readonly _refreshTokenService: RefreshTokensService,
-    private readonly _messageMicroservice: MessageMicroservice,
-    private readonly _usersService: UsersService,
+    private readonly _tokensRenovacionService: TokensRenovacionService,
+    private readonly _personasService: PersonasService,
   ) {}
 
   login(profileData: CognitoProfileDto): Promise<ResponseAccessTokenDto> {
     const email: string = profileData.email?.trim().toLocaleLowerCase();
-    const isCgir: boolean = email.includes('@cgiar.org');
-    const access: Promise<AccessTokenDto> = this._usersService
+    //const isCgir: boolean = email.includes('@cgiar.org');
+    const access: Promise<AccessTokenDto> = this._personasService
       .findUserLogin(email)
-      .then(async (user: User) => {
-        let tempUser: User = user;
-        if (tempUser && tempUser.status_id === UserStatusEnum.PENDING)
-          throw new UnauthorizedException('The user is pending to be accepted');
-        if (tempUser && tempUser.status_id === UserStatusEnum.REJECTED)
-          throw new UnauthorizedException(
-            'The user is rejected please contact the support team',
-          );
-        if (!tempUser && isCgir) {
-          tempUser = await this._usersService
-            .create({
-              email: email,
-              first_name: profileData.given_name,
-              last_name: profileData.family_name,
-              role_id: RolesEnum.CONTRIBUTOR,
-            })
-            .then(async (data) => {
-              await this._messageMicroservice.welcomeEmail(data);
-              return await this._usersService.findById(data.sec_user_id);
-            });
-        } else if (!tempUser && !isCgir) {
-          await this._usersService.create(
-            {
-              email: email,
-              first_name: profileData.given_name,
-              last_name: profileData.family_name,
-            },
-            true,
-          );
-
-          throw new UnauthorizedException(
-            'Your access is restricted until your user is approved. You will be notified by email.',
-          );
-        }
+      .then(async (user: Persona) => {
+        const tempUser: Persona = user;
 
         if (tempUser) {
           const accessToken: string = this.generateToken(tempUser);
@@ -87,20 +51,20 @@ export class AuthorizationService {
       });
 
     return access.then((access: AccessTokenDto) => {
-      const { sec_user_id: user_id } = access.user;
+      const { id: user_id } = access.user;
       return this.dataSource
-        .getRepository(RefreshToken)
+        .getRepository(TokensRenovacion)
         .save({
-          created_by: user_id,
-          user_id: user_id,
-          refresh_token_code: access.refresh_token,
-          expires_at: ENV.EXPIRE_DATE,
+          creado_por: user_id,
+          persona_id: user_id,
+          codigo: access.refresh_token,
+          fecha_expiracion: ENV.EXPIRE_DATE,
         })
-        .then((refreshToken: RefreshToken) => {
+        .then((refreshToken: TokensRenovacion) => {
           return {
             ...new ResponseAccessTokenDto(
               access.access_token,
-              refreshToken.refresh_token_code,
+              refreshToken.codigo,
             ),
             user: access.user,
           };
@@ -108,20 +72,23 @@ export class AuthorizationService {
     });
   }
 
-  private generateToken(user: User): string {
+  private generateToken(user: Persona): string {
     const payload: PayloadDto = {
-      id: user.sec_user_id,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      id: user.id,
+      first_name: user.nombre,
+      last_name: user.apellido,
     };
     return this._jwt.sign(payload);
   }
 
   async refreshToken(refreshToken: string): Promise<ResponseAccessTokenDto> {
-    const token: Promise<RefreshToken> =
-      this._refreshTokenService.validActiveRefreshToken(refreshToken);
-    return token.then(({ user }: RefreshToken) => {
-      return new ResponseAccessTokenDto(this.generateToken(user), refreshToken);
+    const token: Promise<TokensRenovacion> =
+      this._tokensRenovacionService.validActiveRefreshToken(refreshToken);
+    return token.then(({ persona }: TokensRenovacion) => {
+      return new ResponseAccessTokenDto(
+        this.generateToken(persona),
+        refreshToken,
+      );
     });
   }
 
@@ -134,8 +101,8 @@ export class AuthorizationService {
         secret: env.ARIM_JWT_SECRET,
       });
       if (decoded?.id) {
-        const user = await this._usersService.findById(decoded.id);
-        dataResponse.isValid = !isEmpty(user?.sec_user_id);
+        const user = await this._personasService.findById(decoded.id);
+        dataResponse.isValid = !isEmpty(user?.id);
         dataResponse.user = user;
       }
       return dataResponse;

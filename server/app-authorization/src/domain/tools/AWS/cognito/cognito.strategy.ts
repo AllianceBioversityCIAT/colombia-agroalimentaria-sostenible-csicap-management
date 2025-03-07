@@ -58,12 +58,12 @@ export class CognitoStrategy extends PassportStrategy(Strategy, 'cognito') {
     // Split the authorization header to get the code from the user
     // to be able to get the access token
     const parts = authorization.split(' ');
-    console.log('token: ', parts?.length);
-    console.log('is bearer: ', parts?.[0]);
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
       throw new UnauthorizedException('Bearer token is missing');
     }
     const code = parts[1];
+
+    console.log(code);
 
     const config = AWSutil.cognito.config({
       client_id: this._configService.get<string>('ARIM_COGNITO_CLIENT_ID'),

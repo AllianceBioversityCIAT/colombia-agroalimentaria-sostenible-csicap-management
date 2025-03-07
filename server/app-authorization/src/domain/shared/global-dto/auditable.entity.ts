@@ -3,35 +3,35 @@ import { Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 export abstract class AuditableEntity {
   @CreateDateColumn({
     type: 'timestamp',
-    name: 'created_at',
+    name: 'fecha_creacion',
     nullable: false,
     select: false,
   })
-  created_at: Date;
+  fecha_creacion: Date;
 
   @Column({
     type: 'bigint',
-    name: 'created_by',
+    name: 'creado_por',
     nullable: true,
     select: false,
   })
-  created_by: number;
+  creado_por: number;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    name: 'updated_at',
+    name: 'fecha_actualizacion',
     nullable: true,
     select: false,
   })
-  updated_at: Date;
+  fecha_actualizacion: Date;
 
   @Column({
     type: 'bigint',
-    name: 'updated_by',
+    name: 'actualizado_por',
     nullable: true,
     select: false,
   })
-  updated_by: number;
+  actualizado_por: number;
 
   @Column({
     name: 'is_active',
