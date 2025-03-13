@@ -18,7 +18,7 @@ export class GlobalExceptions implements ExceptionFilter {
 
     const status = exception?.status || HttpStatus.INTERNAL_SERVER_ERROR;
     const description = exception?.name;
-    const error = exception?.message;
+    const error = exception?.response || exception?.message;
 
     const res: ServerResponseDto<unknown> = {
       description: description,
