@@ -63,8 +63,6 @@ export class CognitoStrategy extends PassportStrategy(Strategy, 'cognito') {
     }
     const code = parts[1];
 
-    console.log(code);
-
     const config = AWSutil.cognito.config({
       client_id: this._configService.get<string>('ARIM_COGNITO_CLIENT_ID'),
       client_secret: this._configService.get<string>(
@@ -109,7 +107,11 @@ export class CognitoStrategy extends PassportStrategy(Strategy, 'cognito') {
           }),
         ),
     ).catch((err) => {
-      throw new BadRequestException(err);
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+
+      throw new BadRequestException(err?.response?.data);
     });
   }
 
