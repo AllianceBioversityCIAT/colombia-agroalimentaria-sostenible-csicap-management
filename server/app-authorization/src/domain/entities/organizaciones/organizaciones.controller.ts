@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
 import { OrganizacionesService } from './organizaciones.service';
 import { CreateOrganizacioneDto } from './dto/create-organizacione.dto';
 import { UpdateOrganizacioneDto } from './dto/update-organizacione.dto';
+import { Organizacione } from './entities/organizacione.entity';
+import { ResponseUtils } from 'src/domain/shared/utils/response.utils';
 
 @Controller('organizaciones')
 export class OrganizacionesController {
@@ -12,9 +14,22 @@ export class OrganizacionesController {
     return this.organizacionesService.create(createOrganizacioneDto);
   }
 
+  @Get('nombres')
+  async obtenerNombres() {
+    return this.organizacionesService.obtenerNombres().then(res => ResponseUtils.format({
+      data: res,
+      description: 'Nombres de organizaciones obtenidos correctamente',
+      status: HttpStatus.OK,
+    }))
+  }
+
   @Get()
-  findAll() {
-    return this.organizacionesService.findAll();
+  async getOrganizaciones() {
+    return this.organizacionesService.findAll().then(res => ResponseUtils.format({
+      data: res,
+      description: 'Organizaciones obtenidas correctamente',
+      status: HttpStatus.OK,
+    }));
   }
 
   @Get(':id')

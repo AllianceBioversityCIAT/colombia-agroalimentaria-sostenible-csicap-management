@@ -11,12 +11,26 @@ export class OrganizacionesService {
   constructor(private readonly dataSource: DataSource) {
     this.orgRepository = dataSource.getRepository(Organizacione);
   }
+
+  async obtenerNombres(): Promise<string[]> {
+    const nombres = await this.orgRepository
+      .createQueryBuilder('org')
+      .select('org.nombre_corto')
+      .getRawMany();
+
+    console.log(nombres);  
+    return nombres.map((item) => item.org_nombre_corto);
+  }
+
+
   create(createOrganizacioneDto: CreateOrganizacioneDto) {
     return 'This action adds a new organizacione';
   }
 
-  findAll() {
-    return `This action returns all organizaciones`;
+  async findAll(): Promise<Organizacione[]> {
+    const resultado = await this.orgRepository.find();
+    console.log('Organizaciones:', resultado);
+    return resultado;
   }
 
   findOne(id: number) {
