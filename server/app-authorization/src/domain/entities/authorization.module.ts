@@ -9,6 +9,9 @@ import { TokensRenovacionModule } from './tokens-renovacion/tokens-renovacion.mo
 import { MessageMicroservice } from '../tools/broker/message.microservice';
 import { PersonasModule } from './personas/personas.module';
 import { RolesPersonasModule } from './roles-personas/roles-personas.module';
+import { OrganizacionesModule } from './organizaciones/organizaciones.module';
+import { EjesPersonasModule } from './ejes-personas/ejes-personas.module';
+import { OrganizacionesContactoModule } from './organizaciones_contacto/organizaciones_contacto.module';
 
 @Module({
   controllers: [AuthorizationController],
@@ -23,6 +26,9 @@ import { RolesPersonasModule } from './roles-personas/roles-personas.module';
     TokensRenovacionModule,
     PersonasModule,
     RolesPersonasModule,
+    OrganizacionesModule,
+    EjesPersonasModule,
+    OrganizacionesContactoModule,
   ],
   exports: [],
 })

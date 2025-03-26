@@ -1,7 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { AuditableEntity } from '../../../shared/global-dto/auditable.entity';
 import { TokensRenovacion } from '../../tokens-renovacion/entities/refresh-token.entity';
 import { RolesPersona } from '../../roles-personas/entities/roles-persona.entity';
+import { Organizacione } from '../../organizaciones/entities/organizacione.entity';
+import { EjesPersona } from '../../ejes-personas/entities/ejes-persona.entity';
 
 @Entity('personas')
 export class Persona extends AuditableEntity {
@@ -31,6 +33,13 @@ export class Persona extends AuditableEntity {
   })
   email: string;
 
+  @Column({
+    type: 'bigint',
+    name: 'organizacion',
+    nullable: true,
+  })
+  organizacion: number;
+
   @OneToMany(
     () => TokensRenovacion,
     (tokensRenovacion) => tokensRenovacion.persona,
@@ -39,4 +48,11 @@ export class Persona extends AuditableEntity {
 
   @OneToMany(() => RolesPersona, (rolesPersona) => rolesPersona.persona)
   rolesPersonas: RolesPersona[];
+
+  @OneToMany(() => EjesPersona, (ejesPersona) => ejesPersona.persona)
+  ejesPersona: EjesPersona[];
+
+  @ManyToOne(() => Organizacione, (organizacion) => organizacion.personas)
+  @JoinColumn({ name: 'organizacion' })
+  organizacione: Organizacione;
 }
