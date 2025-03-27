@@ -29,6 +29,6 @@ export class TokensRenovacion extends AuditableEntity {
   fecha_expiracion: Date;
 
   @ManyToOne(() => Persona, (persona) => persona.tokensRenovacion)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'persona_id' })
   persona: Persona;
 }
