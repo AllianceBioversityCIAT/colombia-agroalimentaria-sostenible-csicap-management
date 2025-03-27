@@ -4,15 +4,13 @@ import { CreateOrganizacioneDto } from './dto/create-organizacione.dto';
 import { UpdateOrganizacioneDto } from './dto/update-organizacione.dto';
 import { Organizacione } from './entities/organizacione.entity';
 import { ResponseUtils } from 'src/domain/shared/utils/response.utils';
+import { ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Organizaciones')
 @Controller('organizaciones')
 export class OrganizacionesController {
   constructor(private readonly organizacionesService: OrganizacionesService) {}
-
-  @Post()
-  create(@Body() createOrganizacioneDto: CreateOrganizacioneDto) {
-    return this.organizacionesService.create(createOrganizacioneDto);
-  }
 
   @Get('nombres')
   async obtenerNombres() {
@@ -23,14 +21,21 @@ export class OrganizacionesController {
     }))
   }
 
-  @Get()
-  async getOrganizaciones() {
-    return this.organizacionesService.findAll().then(res => ResponseUtils.format({
-      data: res,
-      description: 'Organizaciones obtenidas correctamente',
-      status: HttpStatus.OK,
-    }));
+  @Get('detalle')
+  async obtenerDetalles() {
+    return this.organizacionesService.obtenerDetalles().then(res =>
+      ResponseUtils.format({
+        data: res,
+        description: 'Detalles de organizaciones con contactos obtenidos correctamente',
+        status: HttpStatus.OK,
+      })
+    );
   }
+/* 
+  @Post()
+  create(@Body() createOrganizacioneDto: CreateOrganizacioneDto) {
+    return this.organizacionesService.create(createOrganizacioneDto);
+  } 
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -45,5 +50,5 @@ export class OrganizacionesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.organizacionesService.remove(+id);
-  }
+  } */
 }

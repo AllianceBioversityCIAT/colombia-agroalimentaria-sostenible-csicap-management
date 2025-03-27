@@ -39,9 +39,10 @@ export class OrganizacionesContacto extends AuditableEntity{
     })
     email_contacto: string;
 
-    @ManyToOne(() => Organizacione, (organizacion) => organizacion.contactos, {eager: true})
+    @ManyToOne(() => Organizacione, (organizacion) => organizacion.organizacionesContactos)
     @JoinColumn({ name: 'organizacion' })
-    organizacionesContacto: OrganizacionesContacto;
+    organizacione: Organizacione;
+
 
 
 }

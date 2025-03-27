@@ -82,7 +82,7 @@ export class Organizacione extends AuditableEntity {
     @OneToMany(() => Persona, (persona) => persona.organizacion)
     personas: Persona[];
 
-    @OneToMany(() => OrganizacionesContacto, (organizacionesContacto) => organizacionesContacto.organizacion)
-    contactos: OrganizacionesContacto[];
+    @OneToMany(() => OrganizacionesContacto, (organizacionesContacto) => organizacionesContacto.organizacione, {eager: true})
+    organizacionesContactos: OrganizacionesContacto[];
 
 }

@@ -12,25 +12,29 @@ export class OrganizacionesService {
     this.orgRepository = dataSource.getRepository(Organizacione);
   }
 
-  async obtenerNombres(): Promise<string[]> {
-    const nombres = await this.orgRepository
+  async obtenerNombres() {
+    return this.orgRepository
       .createQueryBuilder('org')
-      .select('org.nombre_corto')
-      .getRawMany();
-
-    console.log(nombres);  
-    return nombres.map((item) => item.org_nombre_corto);
+      .select([
+        'org.nombre_corto',
+        'org.logo',
+      ])
+      .getMany();
   }
 
-
-  create(createOrganizacioneDto: CreateOrganizacioneDto) {
-    return 'This action adds a new organizacione';
-  }
-
-  async findAll(): Promise<Organizacione[]> {
+  async obtenerDetalles(): Promise<Organizacione[]> {
     const resultado = await this.orgRepository.find();
     console.log('Organizaciones:', resultado);
     return resultado;
+  }
+
+/*  
+  create(createOrganizacioneDto: CreateOrganizacioneDto) {
+    return 'This action adds a new organizacione';
+  } 
+
+  async findAll() {
+    return await this.orgRepository.find(); // ¡eager se encarga del resto!
   }
 
   findOne(id: number) {
@@ -43,5 +47,5 @@ export class OrganizacionesService {
 
   remove(id: number) {
     return `This action removes a #${id} organizacione`;
-  }
+  } */
 }
