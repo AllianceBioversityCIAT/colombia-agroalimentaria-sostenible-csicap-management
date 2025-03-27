@@ -75,33 +75,9 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes(
       {
-        path: 'api/',
+        path: 'api/organizations/*',
         method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/user/*',
-        method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/entity-types/*',
-        method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/organizational/*',
-        method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/endpoint-permissions/*',
-        method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/role/*',
-        method: RequestMethod.ALL,
-      },
-      {
-        path: 'api/authorization/view/*',
-        method: RequestMethod.ALL,
-      },
+      }
     );
   }
 }
