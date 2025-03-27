@@ -37,7 +37,7 @@
     "update:dependencies": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.637.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.777.0",
     "@aws-sdk/client-dynamodb": "^3.637.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.637.0",
     "@nestjs/axios": "^3.0.3",
