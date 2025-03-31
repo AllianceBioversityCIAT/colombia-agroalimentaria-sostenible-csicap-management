@@ -17,6 +17,35 @@ export class PersonasService {
     this.mainRepo = dataSource.getRepository(Persona);
   }
 
+  async findUsers() {
+    const personas = await this.mainRepo
+    .createQueryBuilder('persona')
+    .leftJoinAndSelect('persona.organizacione', 'organizacion')
+    .leftJoinAndSelect('roles_personas', 'rp', 'rp.persona_id = persona.id')
+    .leftJoinAndSelect('roles', 'rol', 'rp.rol_id = rol.id')
+    .leftJoinAndSelect('ejes_personas', 'ep', 'ep.persona_id = persona.id')
+    .leftJoinAndSelect('GCF_ejes', 'eje', 'ep.eje_id = eje.id')
+    .where('persona.is_active = :isActive', { isActive: true })
+    .andWhere('organizacion.is_active = :isActive', { isActive: true })
+    .andWhere('rp.is_active = :isActive', { isActive: true })
+    .andWhere('rol.is_active = :isActive', { isActive: true })
+    .andWhere('ep.is_active = :isActive', { isActive: true })
+    .andWhere('eje.is_active = :isActive', { isActive: true })
+    .select([
+      'persona.id',
+      'persona.nombre',
+      'persona.apellido',
+      'persona.email',
+      'organizacion.nombre_corto',
+      'rol.nombre',
+      'eje.nombre',	
+    ])
+    .getRawMany();
+
+    console.log('Personas encontradas:', personas);
+    return personas;
+  }
+
   async findCurrentUser() {
     return this.mainRepo.findOne({
       where: {
