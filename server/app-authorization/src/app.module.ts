@@ -81,6 +81,10 @@ export class AppModule implements NestModule {
       {
         path: 'api/users/*',
         method: RequestMethod.ALL,
+      },
+      {
+        path: 'api/roles/*',
+        method: RequestMethod.ALL,
       }
     );
   }
