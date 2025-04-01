@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { DataSource, In, Repository } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DataSource, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { Persona } from './entities/persona.entity';
 import { RolesPersonasService } from '../roles-personas/roles-personas.service';
 import { CurrentUserUtil } from '../../shared/utils/current-user.util';
@@ -17,7 +17,7 @@ export class PersonasService {
     this.mainRepo = dataSource.getRepository(Persona);
   }
 
-  async findUsers() {
+  /* async findUsers() {
     const personas = await this.mainRepo
     .createQueryBuilder('persona')
     .leftJoinAndSelect('persona.organizacione', 'organizacion')
@@ -44,6 +44,57 @@ export class PersonasService {
 
     console.log('Personas encontradas:', personas);
     return personas;
+  } */
+
+
+  async filterUsers(filters: { organizacion?: string; rol?: string; eje?: string; }) {
+    const { organizacion, rol, eje } = filters;
+  
+    let query = await this.mainRepo
+    .createQueryBuilder('persona')
+    .leftJoinAndSelect('persona.organizacione', 'organizacion')
+    .leftJoinAndSelect('roles_personas', 'rp', 'rp.persona_id = persona.id')
+    .leftJoinAndSelect('roles', 'rol', 'rp.rol_id = rol.id')
+    .leftJoinAndSelect('ejes_personas', 'ep', 'ep.persona_id = persona.id')
+    .leftJoinAndSelect('GCF_ejes', 'eje', 'ep.eje_id = eje.id')
+    .select([
+      'persona.id',
+      'persona.nombre',
+      'persona.apellido',
+      'persona.email',
+      'organizacion.nombre_corto',
+      'rol.nombre',
+      'eje.nombre',	
+    ]);
+
+    if (organizacion) {
+      console.log('organizacion:', organizacion);
+      query = query
+      .andWhere('organizacion.is_active = :isActive', { isActive: true })
+      .andWhere('organizacion.id = :organizacion', { organizacion });
+    }
+  
+    if (rol) {
+      console.log('rol:', rol);
+      query = query
+      .andWhere('rol.is_active = :isActive', { isActive: true })
+      .andWhere('rol.id = :rol', { rol });
+    }
+  
+    if (eje) {
+      console.log('eje:', eje);
+      query = query
+      .andWhere('eje.is_active = :isActive', { isActive: true })
+      .andWhere('eje.id = :eje', { eje });
+    }
+
+    const result = await query.getRawMany();
+    if (result.length === 0) {
+      throw new NotFoundException('No se encontraron usuarios con los filtros especificados.');
+    }
+  
+    console.log('Personas encontradas:', result);
+    return result;
   }
 
   async findCurrentUser() {
