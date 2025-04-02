@@ -1,9 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrganizacioneDto } from './dto/create-organizacione.dto';
-import { UpdateOrganizacioneDto } from './dto/update-organizacione.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Organizacione } from './entities/organizacione.entity';
-import { dataSource } from '../../../db/config/mysql/orm.config';
+
 
 @Injectable()
 export class OrganizacionesService {
@@ -12,40 +10,49 @@ export class OrganizacionesService {
     this.orgRepository = dataSource.getRepository(Organizacione);
   }
 
-  async obtenerNombres() {
-    return this.orgRepository
-      .createQueryBuilder('org')
-      .select([
-        'org.nombre_corto',
-        'org.logo',
-      ])
-      .getMany();
+  async obtenerId() {
+    const query = this.orgRepository
+    .createQueryBuilder('org')
+    .where('org.is_active = :isActive', { isActive: true })
+    .select([
+      'org.id',
+      'org.nombre_corto',
+    ])
+    .getMany();
+
+    return query;
   }
 
   async obtenerDetalles(): Promise<Organizacione[]> {
-    const resultado = await this.orgRepository.find();
-    console.log('Organizaciones:', resultado);
+    const resultado = await this.orgRepository.find({
+      where: {
+        is_active: true
+      }
+    });
     return resultado;
   }
 
-/*  
-  create(createOrganizacioneDto: CreateOrganizacioneDto) {
-    return 'This action adds a new organizacione';
-  } 
+  async obtenerNombres(searchTerm: string) {
+    const query = this.orgRepository
+      .createQueryBuilder('org')
+      .where('org.is_active = :isActive', { isActive: true })
+      .select([
+        'org.id',
+        'org.nombre_corto',
+        'org.logo',
+      ]);
 
-  async findAll() {
-    return await this.orgRepository.find(); // ¡eager se encarga del resto!
+      if (searchTerm) {
+        query.andWhere('org.nombre_corto LIKE :searchTerm', { searchTerm: `%${searchTerm}%` });
+      }
+      
+    const results = await query.getRawMany();
+
+    if (results.length === 0) {
+      throw new NotFoundException('No existen organizaciones que coincidan con su búsqueda.');
+    }
+
+    return results;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} organizacione`;
-  }
-
-  update(id: number, updateOrganizacioneDto: UpdateOrganizacioneDto) {
-    return `This action updates a #${id} organizacione`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} organizacione`;
-  } */
 }

@@ -13,7 +13,7 @@ export class RolesController {
   async findRoles() {
     return this.rolesService.findRoles().then(res => ResponseUtils.format({
       data: res,
-      description: 'Filtro aplicado correctamente',
+      description: 'Roles encontrados correctamente',
       status: HttpStatus.OK,
     }))
   }

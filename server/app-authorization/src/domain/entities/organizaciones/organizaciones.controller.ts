@@ -1,7 +1,7 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { OrganizacionesService } from './organizaciones.service';
 import { ResponseUtils } from 'src/domain/shared/utils/response.utils';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 
 @ApiTags('Organizaciones')
@@ -9,15 +9,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @Controller()
 export class OrganizacionesController {
   constructor(private readonly organizacionesService: OrganizacionesService) {}
-
-  @Get('nombres')
-  async obtenerNombres() {
-    return this.organizacionesService.obtenerNombres().then(res => ResponseUtils.format({
-      data: res,
-      description: 'Nombres de organizaciones obtenidos correctamente',
-      status: HttpStatus.OK,
-    }))
-  }
 
   @Get('detalle')
   async obtenerDetalles() {
@@ -28,6 +19,30 @@ export class OrganizacionesController {
         status: HttpStatus.OK,
       })
     );
+  }
+
+  @Get('nombres')
+  @ApiQuery({ name: 'searchTerm', type: String, required: false, description: 'Nombre de la organización a buscar' })
+  async obtenerNombres(@Query('searchTerm') searchTerm: string) {
+    return this.organizacionesService.obtenerNombres(searchTerm).then(res =>
+      ResponseUtils.format({
+        data: res,
+        description: 'Organizaciones y logos obtenidos correctamente',
+        status: HttpStatus.OK,
+      })
+    );
+  }
+
+  @Get('id')
+  async obtenerId(){
+    return this.organizacionesService.obtenerId().then(res =>
+      ResponseUtils.format({
+        data: res,
+        description: 'Id de organizaciones obtenidos correctamente',
+        status: HttpStatus.OK,
+      })
+    );
+
   }
 
 }
