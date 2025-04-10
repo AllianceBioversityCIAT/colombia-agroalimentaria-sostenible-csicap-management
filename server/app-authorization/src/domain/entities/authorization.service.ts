@@ -46,7 +46,7 @@ export class AuthorizationService {
         }
 
         throw new UnauthorizedException(
-          `The user ${email} is not authorized to access the application. Please contact the support team.`,
+          `El usuario ${email} no está autorizado para acceder a la aplicación. Por favor, contacte al equipo de soporte.`,
         );
       });
 
