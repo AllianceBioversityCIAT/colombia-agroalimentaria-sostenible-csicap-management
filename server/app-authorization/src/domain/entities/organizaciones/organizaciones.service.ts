@@ -55,4 +55,23 @@ export class OrganizacionesService {
     return results;
   }
 
+  async getFiltradas(isCGIAR: boolean) {
+    const query = this.orgRepository.createQueryBuilder('org');
+
+    if (isCGIAR) {
+      const incluidas = ['CIAT', 'CYMMIT'];
+      return query
+      .select(['org.id', 'org.nombre_corto'])
+      .where('org.nombre_corto IN (:...incluidas)', { incluidas })
+      .getMany();
+    } else {
+      const excluidas = ['CIAT', 'CYMMIT'];
+      return query
+        .select(['org.id', 'org.nombre_corto'])
+        .where('org.nombre_corto NOT IN (:...excluidas)', { excluidas })
+        .getMany();
+    }
+  }
+
+
 }

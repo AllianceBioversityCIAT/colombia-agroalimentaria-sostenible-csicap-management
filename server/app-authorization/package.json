@@ -60,6 +60,7 @@
     "activedirectory2": "^2.2.0",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.4",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cross-replace": "^0.2.0",
     "eslint": "^9.9.1",

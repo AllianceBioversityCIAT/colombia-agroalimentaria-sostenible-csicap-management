@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 export class CreateUserDto {
+
   @ApiProperty({
     required: true,
     description: 'User email',
@@ -27,9 +29,26 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: true,
-    description: 'User Role Id. Only application roles are allowed',
+    description: 'User Role Id',
     type: Number,
     default: 1,
   })
-  public role_id?: number;
+  public role_id: number;
+
+  @ApiProperty({
+    required: true,
+    description: 'Organization ID',
+    type: Number,
+    default: 1,
+  })
+  public organizacion_id: number;
+
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    description: 'Eje ID (optional)',
+    type: Number,
+    default: 1,
+  })
+  public eje_id?: number;
 }

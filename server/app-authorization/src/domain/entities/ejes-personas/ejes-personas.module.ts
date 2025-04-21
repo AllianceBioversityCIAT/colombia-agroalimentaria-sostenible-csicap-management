@@ -5,5 +5,6 @@ import { EjesPersonasController } from './ejes-personas.controller';
 @Module({
   controllers: [EjesPersonasController],
   providers: [EjesPersonasService],
+  exports: [EjesPersonasService],
 })
 export class EjesPersonasModule {}

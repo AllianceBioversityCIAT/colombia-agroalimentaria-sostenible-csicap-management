@@ -46,13 +46,35 @@ export class AWSUtilsService {
     this.cognitoClient = new CognitoIdentityProviderClient({
       region: process.env.ARIM_COGNITO_REGION,
       credentials: {
-        accessKeyId: process.env.ARIM_COGNITO_CLIENT_ID,
-        secretAccessKey: process.env.ARIM_COGNITO_CLIENT_SECRET,
+        accessKeyId: process.env.ARIM_COGNITO_ACCESS_KEY,
+        secretAccessKey: process.env.ARIM_COGNITO_SECRET_ACCESS_KEY,
       },
     });
   }
 
   async createNewUser(user: AWSNewUser, customPassword?: boolean) {
+
+    function generateTempPassword(length = 8): string {
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const digits = '0123456789';
+      const symbols = '!@#$%^&*';
+
+      const allChars = upper + lower + digits + symbols;   
+      const getRandom = (str: string) => str.charAt(Math.floor(Math.random() * str.length));
+
+      let password = getRandom(upper) + getRandom(lower) + getRandom(digits) + getRandom(symbols);
+    
+      for (let i = password.length; i < length; i++) {
+        password += getRandom(allChars);
+      }
+
+      password = password.split('').sort(() => 0.5 - Math.random()).join('');
+      console.log('Contraseña:', password);
+
+      return password
+    }
+
     const createUserCommand = new AdminCreateUserCommand({
       UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
       Username: user.email,
@@ -71,7 +93,7 @@ export class AWSUtilsService {
       })
       .then(async () => {
         if (customPassword) {
-          const tempPassword = Math.random().toString(36).slice(-8);
+          const tempPassword = generateTempPassword(); 
           const setPasswordCommand = new AdminSetUserPasswordCommand({
             UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
             Username: user.email,
@@ -85,6 +107,7 @@ export class AWSUtilsService {
              * tempPassword - The temporary password
              * user.email - The user's email
              */
+            console.log('Enviando correo con contraseña temporal:', tempPassword);
           });
 
           return user;
