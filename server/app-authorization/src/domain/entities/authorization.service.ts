@@ -34,6 +34,14 @@ export class AuthorizationService {
         const tempUser: Persona = user;
 
         if (tempUser) {
+          
+          const hasRol = tempUser.rolesPersonas?.some(rp => rp.rol);
+          if (!hasRol) {
+            throw new UnauthorizedException(
+              `El usuario ${email} no tiene roles asignados. No está autorizado para acceder a la aplicación.`,
+            );
+          }
+
           const accessToken: string = this.generateToken(tempUser);
           const tokenObj: AccessTokenDto = new AccessTokenDto(
             accessToken,
