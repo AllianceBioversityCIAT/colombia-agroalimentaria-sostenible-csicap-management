@@ -5,11 +5,11 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: true,
-    description: 'User email',
-    type: String,
-    default: 'JohnDoe@cgiar.org',
+    description: 'Is CGIAR user?',
+    type: Boolean,
+    default: 'true',
   })
-  public email: string;
+  public is_cgiar: boolean;
 
   @ApiProperty({
     required: true,
@@ -29,19 +29,27 @@ export class CreateUserDto {
 
   @ApiProperty({
     required: true,
-    description: 'User Role Id',
-    type: Number,
-    default: 1,
-  })
-  public role_id: number;
-
-  @ApiProperty({
-    required: true,
     description: 'Organization ID',
     type: Number,
     default: 1,
   })
   public organizacion_id: number;
+
+  @ApiProperty({
+    required: true,
+    description: 'User email',
+    type: String,
+    default: 'JohnDoe@cgiar.org',
+  })
+  public email: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'User Role Id',
+    type: Number,
+    default: 1,
+  })
+  public role_id: number;
 
   @IsOptional()
   @ApiProperty({

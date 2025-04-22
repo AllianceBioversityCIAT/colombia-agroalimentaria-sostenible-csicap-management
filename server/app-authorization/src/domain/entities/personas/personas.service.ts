@@ -161,7 +161,7 @@ export class PersonasService {
           email: newUser.email,
           firstName: newUser.first_name,
           lastName: newUser.last_name,
-        }, true);
+        }, newUser.is_cgiar ? undefined : true);
       } catch (error) {
         console.error('Error al registrar el usuario en AWS Cognito:', error);
         throw new InternalServerErrorException(
