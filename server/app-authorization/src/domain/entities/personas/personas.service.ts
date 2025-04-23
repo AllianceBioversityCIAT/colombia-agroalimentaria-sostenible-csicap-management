@@ -111,7 +111,7 @@ export class PersonasService {
         );
       }
 
-      //Validación de dominio de correo electrónico
+      //Validación de dominio de correo electrónico con base en si es usuario CGIAR o no
       const organizacion = await this.organizacionRepo.findOne({
         where: { id: newUser.organizacion_id },
       });
@@ -133,17 +133,43 @@ export class PersonasService {
         Fenalce: ['fenalce.co', 'fenalceregional.org', 'fenalcecolombia.org'], 
         MADR: ['minagricultura.gov.co'] 
       };
-      const domainEsperado = domainMap[organizacion.nombre_corto];
-      if (domainEsperado) {
-        const emailDomain = newUser.email.split('@')[1];
-        const esDominioValido = Array.isArray(domainEsperado)
-          ? domainEsperado.includes(emailDomain)
-          : emailDomain === domainEsperado;
-      
-        if (!esDominioValido) {
+
+      const dominiosCIAT = domainMap['CIAT'] || [];
+      const dominiosCIMMYT = domainMap['CIMMYT'] || [];
+      const dominiosCGIAR = [...dominiosCIAT, ...dominiosCIMMYT];
+
+      const emailDomain = newUser.email.split('@')[1];
+      if (newUser.is_cgiar) {
+        const organizacionesPermitidas = ['CIAT', 'CIMMYT'];
+        if (!organizacionesPermitidas.includes(organizacion.nombre_corto)) {
           throw new BadRequestException(
-            `El correo no pertenece a un dominio permitido para la organización ${organizacion.nombre_corto}.`
+            `La organización seleccionada no es válida para un usuario CGIAR.`
           );
+        }
+      
+        if (!dominiosCGIAR.includes(emailDomain)) {
+          throw new BadRequestException(
+             `El correo no pertenece a un dominio permitido para la organización ${organizacion.nombre_corto}.`
+          );
+        }
+      } else {
+        if (dominiosCGIAR.includes(emailDomain)) {
+          throw new BadRequestException(
+            `Se ha detectado un correo CGIAR para un usuario NO CGIAR.`
+          );
+        }
+      
+        const domainEsperado = domainMap[organizacion.nombre_corto];
+        if (domainEsperado) {
+          const esDominioValido = Array.isArray(domainEsperado)
+            ? domainEsperado.includes(emailDomain)
+            : emailDomain === domainEsperado;
+      
+          if (!esDominioValido) {
+            throw new BadRequestException(
+              `El correo no pertenece a un dominio permitido para la organización ${organizacion.nombre_corto}.`
+            );
+          }
         }
       }
 
@@ -197,7 +223,19 @@ export class PersonasService {
           });
         }
 
-        return resUser;
+        const personaConOrg = await manager
+        .createQueryBuilder(Persona, 'persona')
+        .leftJoinAndSelect('persona.organizacione', 'organizacion')
+        .select([
+          'persona.nombre',
+          'persona.apellido',
+          'persona.email',
+          'organizacion.nombre',
+        ])
+        .where('persona.id = :id', { id: resUser.id })
+        .getOne();
+
+        return personaConOrg;
       });
   
     } catch (error) {

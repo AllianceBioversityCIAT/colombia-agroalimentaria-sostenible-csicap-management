@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PersonasService } from './personas.service';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ResponseUtils } from '../../shared/utils/response.utils';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -10,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class PersonasController {
   constructor(private readonly personasService: PersonasService) {}
 
+  @ApiOperation({ summary: 'Retorna lista de usuarios con filtros opcionales' })
   @Get('list')
   @ApiQuery({ name: 'organizacion', required: false, type: String, description: 'ID de la organización' })
   @ApiQuery({ name: 'rol', required: false, type: String, description: 'ID del rol' })
@@ -23,8 +24,8 @@ export class PersonasController {
     }))
   }
 
+  @ApiOperation({ summary: 'Creación de usuarios CGIAR y no CGIAR' })
   @Post('create')
-  //@UsePipes(new ValidationPipe({ whitelist: true }))
   async create(@Body() createUserDto: CreateUserDto) {
     return this.personasService.create(createUserDto).then(res => ResponseUtils.format({
       data: res,
