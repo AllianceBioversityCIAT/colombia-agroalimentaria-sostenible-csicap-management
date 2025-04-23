@@ -124,7 +124,7 @@ export class PersonasService {
         Augura: ['augura.com.co'], 
         Cenicafé: ['cafedecolombia.com'], 
         Cenicaña: ['cenicana.org'], 
-        CYMMIT: ['cgiar.org'], 
+        CIMMYT: ['cgiar.org'], 
         CIPAV: ['fun.cipav.org.co'],
         Fedearroz: ['fedearroz.com.co'],
         Fedegan: ['fedegan.org.co'],

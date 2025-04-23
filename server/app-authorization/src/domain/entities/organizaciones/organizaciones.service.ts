@@ -59,13 +59,13 @@ export class OrganizacionesService {
     const query = this.orgRepository.createQueryBuilder('org');
 
     if (isCGIAR) {
-      const incluidas = ['CIAT', 'CYMMIT'];
+      const incluidas = ['CIAT', 'CIMMYT'];
       return query
       .select(['org.id', 'org.nombre_corto'])
       .where('org.nombre_corto IN (:...incluidas)', { incluidas })
       .getMany();
     } else {
-      const excluidas = ['CIAT', 'CYMMIT'];
+      const excluidas = ['CIAT', 'CIMMYT'];
       return query
         .select(['org.id', 'org.nombre_corto'])
         .where('org.nombre_corto NOT IN (:...excluidas)', { excluidas })
