@@ -86,34 +86,40 @@ export class AWSUtilsService {
       ],
     });
 
-    return this.cognitoClient
-      .send(createUserCommand)
-      .catch((error) => {
-        throw error;
-      })
-      .then(async () => {
-        if (customPassword) {
-          const tempPassword = generateTempPassword(); 
-          const setPasswordCommand = new AdminSetUserPasswordCommand({
-            UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
-            Username: user.email,
-            Password: tempPassword,
-            Permanent: true, // True para que el usuario no tenga que cambiar la contraseña al iniciar sesión
-          });
+    try {
+      await this.cognitoClient.send(createUserCommand);
+      console.log('[SIMULACIÓN] Usuario creado en Cognito:', user.email);
 
-          await this.cognitoClient.send(setPasswordCommand).then(() => {
-            /**
-             * send email with temp password
-             * tempPassword - The temporary password
-             * user.email - The user's email
-             */
-            console.log('Enviando correo con contraseña temporal:', tempPassword);
-          });
+      if (customPassword) {
+        const tempPassword = generateTempPassword(); 
+        const setPasswordCommand = new AdminSetUserPasswordCommand({
+          UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
+          Username: user.email,
+          Password: tempPassword,
+          Permanent: true, // True para que el usuario no tenga que cambiar la contraseña al iniciar sesión
+        });
 
-          return user;
-        }
-      });
+         
+        await this.cognitoClient.send(setPasswordCommand).then(() => {
+          console.log('Enviando correo con contraseña temporal:', tempPassword);
+        });
+        console.log('[SIMULACIÓN] Contraseña establecida para el usuario:', tempPassword);
+
+        return {
+          email: user.email,
+          password: tempPassword,
+        };
+
+      }else{
+        return{
+          email: user.email,
+        };
+      }
+
+    }catch (error) {
+      throw error;
   }
+}
 }
 
 export class AWSNewUser {

@@ -36,30 +36,28 @@ export class RolesService {
           }
 
         const nombreOrg = org.nombre_corto.toUpperCase();
-        let rolesDeseados: string[] = [];
+        let rolesDeseados: number[] = [];
 
         if (nombreOrg === 'CIAT') {
-          rolesDeseados = [
-            'Líder de eje CIAT',
-            'Gestor de reportes',
-            'Gestor GMU',
-            'Gestor Plans',
-            'Gestor de coordinación técnica',
-            'Líder de coordinación técnica',
-            'Líder de Proyecto',
-          ];
+          rolesDeseados = [4,5,6,7,8,9,10];
         }else if (nombreOrg === 'MADR') {
-        rolesDeseados = ['Usuario MADR'];
+        rolesDeseados = [11];
         } else {
-        rolesDeseados = ['Punto Focal', 'Observador'];
+        rolesDeseados = [3, 2];
         }
 
         return this.rolRepository
         .createQueryBuilder('rol')
         .select(['rol.id', 'rol.nombre'])
-        .where('rol.nombre IN (:...roles)', { roles: rolesDeseados })
+        .where('rol.id IN (:...roles)', { roles: rolesDeseados })
         .getMany();
 
+    }
+
+    async findOne(id: number) {
+        return this.rolRepository.findOne({
+            where: { id },
+        });
     }
       
 }

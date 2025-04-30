@@ -17,6 +17,13 @@ export class Role extends AuditableControlListEntity {
   })
   nombre: string;
 
+  @Column({
+    type: 'varchar',
+    name: 'descripcion',
+    length: 600,
+  })
+  descripcion: string;
+
   @OneToMany(() => RolesPersona, (rolesPersona) => rolesPersona.rol)
   rolesPersonas: RolesPersona[];
 }

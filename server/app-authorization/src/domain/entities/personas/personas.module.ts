@@ -6,6 +6,8 @@ import { EjesPersonasModule } from '../ejes-personas/ejes-personas.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Organizacione } from '../organizaciones/entities/organizacione.entity';
 import { UtilsModule } from '../../tools/AWS/utils/utils.module';
+import { MessageMicroservice } from 'src/domain/tools/broker/message.microservice';
+import { RolesService } from '../roles/roles.service';
 
 @Module({
   controllers: [PersonasController],
@@ -15,7 +17,7 @@ import { UtilsModule } from '../../tools/AWS/utils/utils.module';
     TypeOrmModule.forFeature([Organizacione]),
     UtilsModule,
   ],
-  providers: [PersonasService],
+  providers: [PersonasService, MessageMicroservice, RolesService],
   exports: [PersonasService],
 })
 export class PersonasModule {}
