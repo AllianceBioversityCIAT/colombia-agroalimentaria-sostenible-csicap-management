@@ -250,7 +250,7 @@ export class PersonasService {
         }
 
         
-        //Envío de correo electrónico con credenciales
+
         const role = await this._rolesService.findOne(newUser.role_id);	
         console.log('Correo:', {
           nombre: personaCreada?.nombre,
