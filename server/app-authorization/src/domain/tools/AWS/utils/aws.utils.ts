@@ -7,6 +7,8 @@ import {
   CognitoIdentityProviderClient,
   AdminCreateUserCommand,
   AdminSetUserPasswordCommand,
+  AdminGetUserCommand,
+  UserNotFoundException,
 } from '@aws-sdk/client-cognito-identity-provider';
 
 export class AWSutil {
@@ -75,50 +77,86 @@ export class AWSUtilsService {
       return password
     }
 
-    const createUserCommand = new AdminCreateUserCommand({
-      UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
-      Username: user.email,
-      UserAttributes: [
-        { Name: 'email', Value: user.email },
-        { Name: 'name', Value: user.firstName },
-        { Name: 'family_name', Value: user.lastName },
-        { Name: 'email_verified', Value: 'true' },
-      ],
-    });
+    const userPoolId = process.env.ARIM_COGNITO_POOL_ID;
+    const username = user.email;
 
     try {
-      await this.cognitoClient.send(createUserCommand);
-      console.log('[SIMULACIÓN] Usuario creado en Cognito:', user.email);
-
+      // Verificar si el usuario ya existe
+      const checkUserCommand = new AdminGetUserCommand({
+        UserPoolId: userPoolId,
+        Username: username,
+      });
+  
+      await this.cognitoClient.send(checkUserCommand);
+  
+      console.log(`[INFO] Usuario existente en AWS Cognito: ${username}`);
       if (customPassword) {
-        const tempPassword = generateTempPassword(); 
+        const tempPassword = generateTempPassword();
         const setPasswordCommand = new AdminSetUserPasswordCommand({
-          UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
-          Username: user.email,
+          UserPoolId: userPoolId,
+          Username: username,
           Password: tempPassword,
-          Permanent: true, // True para que el usuario no tenga que cambiar la contraseña al iniciar sesión
+          Permanent: true,
         });
 
-         
-        await this.cognitoClient.send(setPasswordCommand).then(() => {
-          console.log('Enviando correo con contraseña temporal:', tempPassword);
-        });
-        console.log('[SIMULACIÓN] Contraseña establecida para el usuario:', tempPassword);
+        await this.cognitoClient.send(setPasswordCommand);
 
         return {
+          message: 'Usuario existente, contraseña actualizada',
           email: user.email,
           password: tempPassword,
         };
-
       }else{
         return{
           email: user.email,
         };
       }
 
-    }catch (error) {
-      throw error;
-  }
+    } catch (error) {
+
+      if (error.name === 'UserNotFoundException') {
+        const createUserCommand = new AdminCreateUserCommand({
+          UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
+          Username: user.email,
+          UserAttributes: [
+            { Name: 'email', Value: user.email },
+            { Name: 'name', Value: user.firstName },
+            { Name: 'family_name', Value: user.lastName },
+            { Name: 'email_verified', Value: 'true' },
+          ],
+          MessageAction: 'SUPPRESS',
+        });
+    
+        try {
+          await this.cognitoClient.send(createUserCommand);
+          console.log('[SIMULACIÓN] Usuario creado en Cognito:', user.email);
+    
+          if (customPassword) {
+            const tempPassword = generateTempPassword(); 
+            const setPasswordCommand = new AdminSetUserPasswordCommand({
+              UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
+              Username: user.email,
+              Password: tempPassword,
+              Permanent: true, // True para que el usuario no tenga que cambiar la contraseña al iniciar sesión
+            });
+           
+            await this.cognitoClient.send(setPasswordCommand);
+    
+            return {
+              email: user.email,
+              password: tempPassword,
+            };
+    
+          }else{
+            return{
+              email: user.email,
+            };
+          }
+    
+        }catch (error) {
+          throw error;
+      }
+    }}
 }
 }
 

@@ -364,8 +364,6 @@ export class PersonasService {
         const html = template(context);
         const emailHtmlBuffer = Buffer.from(html);
 
-        console.log('HTML del correo:', html);
-
         await this.messageMicroservice.sendEmail({
           subject: ' Bienvenido a CAS Reporting Tool - Acceso a su cuenta',
           to: personaCreada.email,
