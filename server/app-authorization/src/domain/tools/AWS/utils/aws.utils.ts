@@ -137,7 +137,7 @@ export class AWSUtilsService {
               UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
               Username: user.email,
               Password: tempPassword,
-              Permanent: true, // True para que el usuario no tenga que cambiar la contraseña al iniciar sesión
+              Permanent: true,
             });
            
             await this.cognitoClient.send(setPasswordCommand);
