@@ -198,7 +198,6 @@ export class PersonasService {
           );
         }   
 
-        //Creación de usuario en la base de datos
         let personaCreada: any;
         try {
           personaCreada = await this.dataSource.transaction(async (manager) => {
