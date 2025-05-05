@@ -152,7 +152,7 @@ export class PersonasService {
           }     
           if (!dominiosCGIAR.includes(emailDomain)) {
             throw new BadRequestException(
-              `El correo no pertenece a un dominio permitido para la organización ${organizacion.nombre_corto}.`
+              `Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.`
             );
           }
         } else {
@@ -169,7 +169,7 @@ export class PersonasService {
         
             if (!esDominioValido) {
               throw new BadRequestException(
-                `El correo no pertenece a un dominio permitido para la organización ${organizacion.nombre_corto}.`
+                `Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.`
               );
             }
           }
