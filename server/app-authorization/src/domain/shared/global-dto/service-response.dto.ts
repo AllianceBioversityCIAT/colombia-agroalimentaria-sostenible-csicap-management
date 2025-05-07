@@ -16,4 +16,7 @@ export class ServiceResponseDto<T> {
 
   @ApiProperty()
   errors?: any;
+
+  @ApiProperty()
+  cause?: any;
 }

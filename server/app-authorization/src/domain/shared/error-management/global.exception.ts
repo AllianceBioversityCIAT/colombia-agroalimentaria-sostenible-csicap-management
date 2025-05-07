@@ -19,11 +19,13 @@ export class GlobalExceptions implements ExceptionFilter {
     const status = exception?.status || HttpStatus.INTERNAL_SERVER_ERROR;
     const description = exception?.name;
     const error = exception?.message || exception?.response;
+    const cause = exception?.options?.cause?.message || null;
 
     const res: ServerResponseDto<unknown> = {
       description: description,
       status: status,
       errors: error,
+      cause: cause,
       timestamp: new Date().toISOString(),
       path: request.url,
     };

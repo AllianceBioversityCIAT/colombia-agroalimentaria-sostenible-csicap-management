@@ -102,20 +102,20 @@ export class PersonasService {
   async create(newUser: CreateUserDto): Promise<Persona> {
     try{
         //Validación de campos requeridos
-        const requiredFields = ['first_name', 'last_name', 'email', 'role_id', 'organizacion_id'];
+        const requiredFields = ['is_cgiar', 'first_name', 'last_name', 'email', 'role_id', 'organizacion_id'];
         const missingFields = requiredFields.filter(field => !newUser[field]);
         if (missingFields.length > 0) {
-          throw new BadRequestException(
-            `Formulario incompleto. Complete todos los campos requeridos para continuar con el proceso.`,
-          );
+          throw new BadRequestException('Formulario incompleto', {
+            cause: new Error('Formulario incompleto. Complete todos los campos requeridos para continuar con el proceso.',),
+          });
         }
 
         //Validación de formato de correo electrónico
         const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailFormat.test(newUser.email)) {
-          throw new BadRequestException(
-            'El correo electrónico ingresado no tiene un formato válido.'
-          );
+          throw new BadRequestException('Formato de correo inconrrecto', {
+            cause: new Error('El correo electrónico ingresado no tiene un formato válido.',),
+          });
         }
 
         //Validación de dominio de correo electrónico con base en si es usuario CGIAR o no
@@ -146,20 +146,20 @@ export class PersonasService {
         if (newUser.is_cgiar) {
           const organizacionesPermitidas = ['CIAT', 'CIMMYT'];
           if (!organizacionesPermitidas.includes(organizacion.nombre_corto)) {
-            throw new BadRequestException(
-              `La organización seleccionada no es válida para un usuario CGIAR.`
-            );
+            throw new BadRequestException('Organización no válida', {
+              cause: new Error('`La organización seleccionada no es válida para un usuario CGIAR.`',),
+            });
           }     
           if (!dominiosCGIAR.includes(emailDomain)) {
-            throw new BadRequestException(
-              `Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.`
-            );
+            throw new BadRequestException('Correo no válido', {
+              cause: new Error('Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.',),
+            });
           }
         } else {
           /*if (dominiosCGIAR.includes(emailDomain)) {
-            throw new BadRequestException(
-              `Se ha detectado un correo CGIAR para un usuario NO CGIAR.`
-            );
+            throw new BadRequestException('Correo no válido', {
+              cause: new Error('Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.',),
+            });
           }*/        
           const domainEsperado = domainMap[organizacion.nombre_corto];
           if (domainEsperado) {
@@ -168,9 +168,9 @@ export class PersonasService {
               : emailDomain === domainEsperado;
         
             if (!esDominioValido) {
-              throw new BadRequestException(
-                `Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.`
-              );
+              throw new BadRequestException('Correo no válido', {
+              cause: new Error('Parece que este correo no es parte del dominio de la organización seleccionada. Verifique el correo electrónico ingresado.',),
+            });
             }
           }
         } //fin validación de dominio de correo electrónico
@@ -178,9 +178,9 @@ export class PersonasService {
         //Validación de existencia de usuario
         const existingUser = await this.mainRepo.findOneBy({ email: newUser.email });
         if (existingUser) {
-          throw new BadRequestException(
-            'El nombre de usuario o correo electrónico ya está registrado. Por favor, intente con otro.'
-          );
+          throw new BadRequestException('Usuario duplicado', {
+              cause: new Error('El nombre de usuario o correo electrónico ya está registrado. Por favor, intente con otro.',),
+            });
         }
       
         //Creación de usuario en AWS Cognito
@@ -193,9 +193,9 @@ export class PersonasService {
           }, newUser.is_cgiar ? undefined : true);
         } catch (error) {
           console.error('Error al registrar el usuario en AWS Cognito:', error);
-          throw new InternalServerErrorException(
-            'No fue posible registrar el usuario en el sistema de autenticación. Si el problema persiste, contacte al administrador técnico.'
-          );
+          throw new InternalServerErrorException('Error de creación', {
+              cause: new Error('Ocurrió un error en el servidor al intentar crear el usuario. Si el problema persiste, contacte al administrador técnico.',),
+            });
         }   
 
         let personaCreada: any;
@@ -243,9 +243,9 @@ export class PersonasService {
         });
         } catch (error) {
           console.error('Error en base de datos:', error);
-          throw new InternalServerErrorException(
-            'Ocurrió un error en el servidor al intentar crear el usuario. Si el problema persiste, contacte al administrador técnico.'
-          );
+          throw new InternalServerErrorException('Error de creación', {
+              cause: new Error('Ocurrió un error en el servidor al intentar crear el usuario. Si el problema persiste, contacte al administrador técnico.',),
+            });
         }
 
         
@@ -380,9 +380,9 @@ export class PersonasService {
       }
   
       console.error('Error al crear usuario:', error);
-      throw new InternalServerErrorException(
-        'Ocurrió un error en el servidor al intentar crear el usuario. Si el problema persiste, contacte al administrador técnico.'
-      );
+      throw new InternalServerErrorException('Error de creación', {
+              cause: new Error('Ocurrió un error en el servidor al intentar crear el usuario. Si el problema persiste, contacte al administrador técnico.',),
+            });
     }
   }
 
