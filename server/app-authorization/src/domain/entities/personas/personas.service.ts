@@ -102,7 +102,7 @@ export class PersonasService {
   async create(newUser: CreateUserDto): Promise<Persona> {
     try{
         //Validación de campos requeridos
-        const requiredFields = ['is_cgiar', 'first_name', 'last_name', 'email', 'role_id', 'organizacion_id'];
+        const requiredFields = ['first_name', 'last_name', 'email', 'role_id', 'organizacion_id'];
         const missingFields = requiredFields.filter(field => !newUser[field]);
         if (missingFields.length > 0) {
           throw new BadRequestException('Formulario incompleto', {
