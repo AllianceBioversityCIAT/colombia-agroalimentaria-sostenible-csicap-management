@@ -1,6 +1,6 @@
 #################### BASE STAGE ####################
 # Base image
-FROM node:20-alpine as base
+FROM node:20.13.1-alpine AS base
 
 # Create app directory
 WORKDIR /app
@@ -38,7 +38,7 @@ RUN npm run build
 #################### PRODUCTION STAGE ####################
 
 # Base image
-FROM --platform=linux/amd64 node:latest as production
+FROM --platform=linux/amd64 node:20.13.1-alpine AS production
 
 # Create app directory
 WORKDIR /app
