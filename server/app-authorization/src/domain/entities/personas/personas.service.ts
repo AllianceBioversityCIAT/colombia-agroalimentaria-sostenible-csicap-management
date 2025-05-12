@@ -354,7 +354,7 @@ export class PersonasService {
           nombre: personaCreada.nombre,
           apellido: personaCreada.apellido,
           correo: personaCreada.email,
-          password: userResult.password ? userResult.password : null,
+          password: userResult?.password ?? null,
           rol: role.nombre,
           rolDescripcion: role.descripcion,
           enlace: 'https://castest.ciat.cgiar.org/',
