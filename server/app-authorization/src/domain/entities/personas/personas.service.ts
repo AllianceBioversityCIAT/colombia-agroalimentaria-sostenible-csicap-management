@@ -113,7 +113,7 @@ export class PersonasService {
         //Validación de formato de correo electrónico
         const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailFormat.test(newUser.email)) {
-          throw new BadRequestException('Formato de correo inconrrecto', {
+          throw new BadRequestException('Formato de correo incorrecto', {
             cause: new Error('El correo electrónico ingresado no tiene un formato válido.',),
           });
         }
