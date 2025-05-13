@@ -185,12 +185,13 @@ export class PersonasService {
       
         //Creación de usuario en AWS Cognito
         let userResult: { email: string; password?: string };
+        const shouldSetPassword = !newUser.is_cgiar;
         try {
           userResult = await this.awsUtilsService.createNewUser({
             email: newUser.email,
             firstName: newUser.first_name,
             lastName: newUser.last_name,
-          }, newUser.is_cgiar ? undefined : true);
+          }, shouldSetPassword);
         } catch (error) {
           console.error('Error al registrar el usuario en AWS Cognito:', error);
           throw new InternalServerErrorException('Error de creación', {
@@ -216,7 +217,6 @@ export class PersonasService {
             onlyCreate: true,
           });
 
-          console.log('Eje ID recibido:', newUser.eje_id);
           if (newUser.eje_id !== undefined && newUser.eje_id !== null) {
             await this._ejesPersonasService.create({
               primaryFilterKey: resUser.id,
