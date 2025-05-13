@@ -54,21 +54,29 @@ export class AWSUtilsService {
     });
   }
 
-  async createNewUser(user: AWSNewUser, customPassword?: boolean) {
+  async createNewUser(user: AWSNewUser, customPassword?: boolean): Promise<{ email: string; password?: string }> {
 
     function generateTempPassword(length = 8): string {
       const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const lower = 'abcdefghijklmnopqrstuvwxyz';
       const digits = '0123456789';
-      const symbols = '!@#$%^&*';
-
-      const allChars = upper + lower + digits + symbols;   
+      const symbols = '!@#$%^&*';  
       const getRandom = (str: string) => str.charAt(Math.floor(Math.random() * str.length));
-
       let password = getRandom(upper) + getRandom(lower) + getRandom(digits) + getRandom(symbols);
-    
+      const allChars = upper + lower + digits + symbols; 
+
+
       for (let i = password.length; i < length; i++) {
         password += getRandom(allChars);
+      }
+      
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasDigit = /\d/.test(password);
+      const hasSymbol = /[!@#$%^&*]/.test(password);
+    
+      if (!hasUpper || !hasLower || !hasDigit || !hasSymbol) {
+        return generateTempPassword(length); // Reintenta
       }
 
       password = password.split('').sort(() => 0.5 - Math.random()).join('');
@@ -90,7 +98,7 @@ export class AWSUtilsService {
       await this.cognitoClient.send(checkUserCommand);
   
       console.log(`[INFO] Usuario existente en AWS Cognito: ${username}`);
-      if (customPassword) {
+      if (customPassword === true) {
         const tempPassword = generateTempPassword();
         const setPasswordCommand = new AdminSetUserPasswordCommand({
           UserPoolId: userPoolId,
@@ -102,18 +110,15 @@ export class AWSUtilsService {
         await this.cognitoClient.send(setPasswordCommand);
 
         return {
-          message: 'Usuario existente, contraseña actualizada',
           email: user.email,
           password: tempPassword,
         };
-      }else{
-        return{
-          email: user.email,
-        };
       }
 
-    } catch (error) {
-
+      return{email: user.email};
+      
+    } catch (error:any) {
+      console.log(`Usuario NO existe. Creando: ${username}`);
       if (error.name === 'UserNotFoundException') {
         const createUserCommand = new AdminCreateUserCommand({
           UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
@@ -131,7 +136,7 @@ export class AWSUtilsService {
           await this.cognitoClient.send(createUserCommand);
           console.log('[SIMULACIÓN] Usuario creado en Cognito:', user.email);
     
-          if (customPassword) {
+          if (customPassword === true) {
             const tempPassword = generateTempPassword(); 
             const setPasswordCommand = new AdminSetUserPasswordCommand({
               UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
@@ -147,12 +152,9 @@ export class AWSUtilsService {
               password: tempPassword,
             };
     
-          }else{
-            return{
-              email: user.email,
-            };
           }
-    
+          
+          return{email: user.email};
         }catch (error) {
           throw error;
       }
