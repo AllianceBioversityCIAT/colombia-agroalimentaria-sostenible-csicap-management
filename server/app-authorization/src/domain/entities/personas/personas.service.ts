@@ -350,16 +350,18 @@ export class PersonasService {
         </html>Equipo CAS Reporting Tool, Colombia Agroalimentaria Sostenible.
         `;
         const template = Handlebars.compile(templateSource);
-        const context = {
+        const context: any = {
           nombre: personaCreada.nombre,
           apellido: personaCreada.apellido,
           correo: personaCreada.email,
-          password: userResult?.password ?? null,
           rol: role.nombre,
           rolDescripcion: role.descripcion,
           enlace: 'https://castest.ciat.cgiar.org/',
           urlLogo: 'https://media-resources-csicap.s3.us-east-1.amazonaws.com/organizations/Logo_oficial_Colombia_Agroalimentaria_Sostenible.png',
         };
+        if (userResult?.password) {
+          context.password = userResult.password;
+        }
         const html = template(context);
         const emailHtmlBuffer = Buffer.from(html);
 
