@@ -254,7 +254,7 @@ export class PersonasService {
         console.log('Correo:', {
           nombre: personaCreada?.nombre,
           apellido: personaCreada?.apellido,
-          correo: personaCreada?.email,
+          correo: userResult?.email,
           password: userResult?.password || '(no generada)',
           organizacion: organizacion.nombre_corto,
           rol: role.nombre,
