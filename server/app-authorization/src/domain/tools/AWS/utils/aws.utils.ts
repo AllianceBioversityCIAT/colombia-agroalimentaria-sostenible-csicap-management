@@ -118,6 +118,8 @@ export class AWSUtilsService {
       return{email: user.email};
       
     } catch (error:any) {
+      console.error('🚨 Error detectado:', error);
+      console.error('🧪 Nombre del error:', error.name);
       console.log(`Usuario NO existe. Creando: ${username}`);
       if (error.name === 'UserNotFoundException') {
         const createUserCommand = new AdminCreateUserCommand({
