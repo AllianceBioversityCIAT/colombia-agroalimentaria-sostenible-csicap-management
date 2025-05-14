@@ -76,7 +76,7 @@ export class AWSUtilsService {
       const hasSymbol = /[!@#$%^&*]/.test(password);
     
       if (!hasUpper || !hasLower || !hasDigit || !hasSymbol) {
-        return generateTempPassword(length); // Reintenta
+        return generateTempPassword(length);
       }
 
       password = password.split('').sort(() => 0.5 - Math.random()).join('');
@@ -118,10 +118,8 @@ export class AWSUtilsService {
       return{email: user.email};
       
     } catch (error:any) {
-      console.error('🚨 Error detectado:', error);
       console.error('🧪 Nombre del error:', error.name);
-      console.log(`Usuario NO existe. Creando: ${username}`);
-      if (error.name === 'UserNotFoundException') {
+      if(error instanceof UserNotFoundException) {
         const createUserCommand = new AdminCreateUserCommand({
           UserPoolId: process.env.ARIM_COGNITO_POOL_ID,
           Username: user.email,
@@ -136,7 +134,6 @@ export class AWSUtilsService {
     
         try {
           await this.cognitoClient.send(createUserCommand);
-          console.log('[SIMULACIÓN] Usuario creado en Cognito:', user.email);
     
           if (customPassword === true) {
             const tempPassword = generateTempPassword(); 
@@ -160,7 +157,11 @@ export class AWSUtilsService {
         }catch (error) {
           throw error;
       }
-    }}
+    }else {
+      console.error('Error al crear el usuario, tipo de error diferente a UserNotFoundException', error);
+      throw error;
+    }
+  }
 }
 }
 
