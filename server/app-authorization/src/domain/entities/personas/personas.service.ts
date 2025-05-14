@@ -83,20 +83,25 @@ export class PersonasService {
   }
 
   async findCurrentUser() {
-    return this.mainRepo.findOne({
-      where: {
-        id: this._currentUser.user_id,
-        is_active: true,
-        rolesPersonas: {
-          is_active: true,
-        },
-      },
-      relations: {
-        rolesPersonas: {
-          rol: true,
-        },
-      },
-    });
+  return this.mainRepo
+    .createQueryBuilder('persona')
+    .leftJoinAndSelect('persona.organizacione', 'organizacion')
+    .leftJoinAndSelect('roles_personas', 'rp', 'rp.persona_id = persona.id')
+    .leftJoinAndSelect('roles', 'rol', 'rp.rol_id = rol.id')
+    .leftJoinAndSelect('ejes_personas', 'ep', 'ep.persona_id = persona.id')
+    .leftJoinAndSelect('GCF_ejes', 'eje', 'ep.eje_id = eje.id')
+    .where('persona.id = :id', { id: this._currentUser.user_id })
+    .select([
+      'persona.id AS id',
+      'persona.nombre AS nombre',
+      'persona.apellido AS apellido',
+      'persona.email AS email',
+      'organizacion.nombre_corto AS org_nombre',
+      'organizacion.logo AS org_logo',
+      'rol.nombre AS rol',
+      'eje.nombre AS eje',	
+    ])
+    .getRawMany();
   }
 
   async create(newUser: CreateUserDto): Promise<Persona> {

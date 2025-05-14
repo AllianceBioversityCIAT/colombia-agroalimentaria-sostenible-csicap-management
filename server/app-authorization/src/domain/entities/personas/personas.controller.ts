@@ -3,6 +3,7 @@ import { PersonasService } from './personas.service';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ResponseUtils } from '../../shared/utils/response.utils';
 import { CreateUserDto } from './dto/create-user.dto';
+import { SearchRequest } from '../../shared/decorators/search-request.decorator';
 
 @ApiTags('Personas')
 @ApiBearerAuth()
@@ -32,6 +33,17 @@ export class PersonasController {
       description: 'El usuario ha sido creado exitosamente en el sistema',
       status: HttpStatus.OK,
     }))
+  }
+
+  @Get('current-user')
+  async getCurrentUser() {
+    return this.personasService.findCurrentUser().then(res =>
+      ResponseUtils.format({
+            description: `Información de usuario obtenida correctamente`,
+            data: res,
+            status: HttpStatus.OK,
+          })
+    );
   }
 
 }
